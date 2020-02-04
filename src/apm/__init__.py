@@ -50,7 +50,7 @@ def create_temp_folder():
 
 def install_from_local_req_file():
     subprocess.check_call(
-        ["pipenv", "install", "-r", "local_requirements.txt"])
+        ["pipenv", "install", "-r", "requirements.inhouse.txt"])
 
 
 def get_all_dependencies_recursive(dependencies):
