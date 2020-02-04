@@ -1,0 +1,15 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+pkginfo = "*"
+requests = "*"
+p1 = {file = "https://github.com/Arielgordon123/P1/releases/download/v0.0.6/P1-0.0.6-py3-none-any.whl"}
+p2 = {file = "https://github.com/Arielgordon123/P2/releases/download/v0.0.8/P2-0.0.8-py3-none-any.whl"}
+
+[requires]
+python_version = "3.7"
