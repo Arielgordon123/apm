@@ -30,7 +30,7 @@ setup(
     package_dir={'': 'src'},  # Optional
     packages=find_packages(where='src'),  # Required
     python_requires='>=3.5',
-    install_requires=['requests'],  # Optional
+    install_requires=['requests', 'pkginfo'],  # Optional
     entry_points={  # Optional
         'console_scripts': [
             'apm=apm:main',

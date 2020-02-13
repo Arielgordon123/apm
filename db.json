@@ -1,0 +1,34 @@
+{
+  "apm": {
+    "versions": [
+      {
+        "name": "apm",
+        "path": "/home/ariel/Documents/devops/python/APM/dist/APM-0.0.4-py3-none-any.whl",
+        "dependencies": [],
+        "version": "0.0.4"
+      }
+    ]
+  },
+  "P3": {
+    "versions": [
+      {
+        "name": "P3",
+        "path": "/home/ariel/Documents/devops/python/P3/dist/P3-0.0.2-py3-none-any.whl",
+        "dependencies": [
+          "https://github.com/Arielgordon123/P2/releases/download/v0.0.8/P2-0.0.8-py3-none-any.whl",
+          "https://github.com/Arielgordon123/P1/releases/download/v0.0.6/P1-0.0.6-py3-none-any.whl"
+        ],
+        "version": "0.0.2"
+      },
+      {
+        "name": "P3",
+        "path": "/home/ariel/Documents/devops/python/P3/dist/P3-0.0.1-py3-none-any.whl",
+        "dependencies": [
+          "/home/ariel/Documents/devops/python/P2/dist/P2-0.0.7-py3-none-any.whl",
+          "/home/ariel/Documents/devops/python/P1/dist/P1-0.0.6-py3-none-any.whl"
+        ],
+        "version": "0.0.1"
+      }
+    ]
+  }
+}

@@ -1,69 +1,72 @@
 
 import os
-import requests
-import shutil
 import subprocess
-from zipfile import ZipFile
+from dotenv import load_dotenv
 from argparse import ArgumentParser
+from Package import Package
+from Publish import publish
 
-temp_folder = os.path.dirname("./.temp/")
+temp_folder = None
 
 
 def parse_args():
-    parser = ArgumentParser()
-    parser.add_argument("-i", "--install", dest="package",
-                        help="the package that you want to install",
-                        metavar="package Name", required=True)
+    try:
+        parser = ArgumentParser()
+        subparsers = parser.add_subparsers()
 
-    args = parser.parse_args()
-    get_all_dependencies_recursive(args.package)
-    install_from_local_req_file()
+        # Publish parser
+        publish_parser = subparsers.add_parser("publish", help='package')
+        publish_parser.set_defaults(cmd='publish')
+
+        publish_parser.add_argument(dest="package",
+                                    metavar="package to publish")
+
+        # Install parser
+        install_parser = subparsers.add_parser("install",  help='package name')
+        install_parser.set_defaults(cmd='install')
+
+        install_parser.add_argument(dest="package",
+                                    help="Install package",
+                                    metavar="package Name")
+        install_parser.add_argument("-C", "--command",
+                                    dest="pip_command",
+                                    help="package manger to use",
+                                    default="pipenv",
+                                    metavar="package manager command (pip or pipenv)")
+        args = parser.parse_args()
+        if args.cmd == "install":
+            try:
+                Package.get_all_dependencies_recursive(args.package)
+                install_from_local_req_file(command=args.pip_command)
+            except ValueError:
+                pass  # Handeled in get_dependencies function
+        elif args.cmd == "publish":
+            package = Package(path=args.package,
+                              dependencies=Package.get_all_dependencies_recursive(args.package))
+            publish(package)
+    except AttributeError as e:
+        print(e)
+        # print the help and exit
+        parser.print_help()
+    except Exception as e:
+        print("an error accurd")
+        print(type(e))
+        print(e)
 
 
-def get_dependencies(wheel_fname):
-    global temp_folder
-    inhouse = []
-    # download if the file from the internet
-    if wheel_fname.startswith("http"):
-        create_temp_folder()
-        temp_file = os.path.join(temp_folder, wheel_fname.split("/")[-1])
-        response = requests.get(wheel_fname, stream=True)
-        with open(temp_file, 'wb') as out_file:
-            shutil.copyfileobj(response.raw, out_file)
-        wheel_fname = temp_file
-
-    archive = ZipFile(wheel_fname)
-    for f in archive.namelist():
-        if f.endswith("dependency_links.txt"):
-            for l in archive.open(f).read().decode("utf-8").split("\n"):
-                if len(l) > 0:
-                    inhouse.append(l)
-
-    return inhouse
+def search_db(package_name, version="latest"):
+    pass
 
 
-def create_temp_folder():
-    global temp_folder
-    if not os.path.exists(temp_folder):
-        os.makedir(temp_folder)
-
-
-def install_from_local_req_file():
+def install_from_local_req_file(command):
     subprocess.check_call(
-        ["pipenv", "install", "-r", "requirements.inhouse.txt"])
-
-
-def get_all_dependencies_recursive(dependencies):
-    dependencies = get_dependencies(dependencies)
-    lst = []
-    with open("requirements.inhouse.txt", "a") as requirements:
-        for sub_dep in dependencies:
-            requirements.write(sub_dep+"\r\n")
-            get_all_dependencies_recursive(sub_dep)
-    return lst
+        [command, "install", "-r", "requirements.inhouse.txt"])
 
 
 def main():
+    global temp_folder
+    load_dotenv()
+    temp_folder = os.getenv("temp_folder")
     parse_args()
 
 
