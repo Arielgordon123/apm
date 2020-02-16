@@ -75,22 +75,6 @@
             ],
             "version": "==0.9.4"
         },
-        "p1": {
-            "file": "https://github.com/Arielgordon123/P1/releases/download/v0.0.6/P1-0.0.6-py3-none-any.whl",
-            "hashes": [
-                "sha256:e21e24dd20765686648810f8bd99663105a77c294958a53a158dd9272f6cabae"
-            ],
-            "index": "pypi",
-            "version": "==0.0.6"
-        },
-        "p2": {
-            "file": "https://github.com/Arielgordon123/P2/releases/download/v0.0.8/P2-0.0.8-py3-none-any.whl",
-            "hashes": [
-                "sha256:7c4c2fd2239bbc1aa22d60fcb43987f64a0fc634930b8c00764ac636c292f321"
-            ],
-            "index": "pypi",
-            "version": "==0.0.8"
-        },
         "pkginfo": {
             "hashes": [
                 "sha256:7424f2c8511c186cd5424bbf31045b77435b37a8d604990b79d4e70d741148bb",
