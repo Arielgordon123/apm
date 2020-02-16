@@ -3,10 +3,12 @@ import requests
 import shutil
 import logging
 import boto3
+import hashlib
+import re
 from botocore.exceptions import ClientError
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()
 temp_folder = os.getenv("temp_folder")
 bucket = os.getenv("bucket")
 
@@ -51,3 +53,39 @@ def download_package(wheel_fname, folder=temp_folder):
 def upload_package_to_cloud(package, cloud="s3"):
     if cloud == "s3":  # if more cloud are needed
         upload_file_s3(package.path, bucket)
+
+
+def get_digest(file_path):
+    h = hashlib.sha256()
+
+    with open(file_path, 'rb') as file:
+        while True:
+            # Reading is buffered, so we can read smaller chunks.
+            chunk = file.read(h.block_size)
+            if not chunk:
+                break
+            h.update(chunk)
+
+    return h.hexdigest()
+
+
+#  TODO: update regex to something like
+#  https://regex101.com/r/Ly7O1x/3/
+def regex_generator(term=None, version=None):
+    if not version or not any(x in term for x in ["^", "~", "="]):
+        return "latest"  # get latest by default
+    major, minor, patch = version.split(".")
+    if term == "~":
+        #  Example ~=3.1.2:
+        #  version 3.1.2 or later, but not version 3.2.0 or later
+        return r"^{major}.{minor}.[{patch}-9]$".format(major=major,
+                                                       minor=minor,
+                                                       patch=patch)
+    elif term == "^":
+        return r"^{major}.[{minor}-9].[0-9]$".format(major=major,
+                                                     minor=minor,
+                                                     patch=patch)
+    elif term == "=":
+        return r"^{major}.{minor}.{patch}$".format(major=major,
+                                                   minor=minor,
+                                                   patch=patch)

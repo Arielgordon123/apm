@@ -1,10 +1,10 @@
 
 import os
 import subprocess
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from argparse import ArgumentParser
-from Package import Package
-from Publish import publish
+from .Package import Package
+from .Publish import publish
 
 temp_folder = None
 
@@ -32,7 +32,7 @@ def parse_args():
                                     dest="pip_command",
                                     help="package manger to use",
                                     default="pipenv",
-                                    metavar="package manager command (pip or pipenv)")
+                                    metavar="command (pip or pipenv)")
         args = parser.parse_args()
         if args.cmd == "install":
             try:
@@ -41,8 +41,7 @@ def parse_args():
             except ValueError:
                 pass  # Handeled in get_dependencies function
         elif args.cmd == "publish":
-            package = Package(path=args.package,
-                              dependencies=Package.get_all_dependencies_recursive(args.package))
+            package = Package(path=args.package)
             publish(package)
     except AttributeError as e:
         print(e)
@@ -65,7 +64,7 @@ def install_from_local_req_file(command):
 
 def main():
     global temp_folder
-    load_dotenv()
+    # load_dotenv()
     temp_folder = os.getenv("temp_folder")
     parse_args()
 

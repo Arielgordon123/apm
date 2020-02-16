@@ -1,21 +1,21 @@
 import os
 from zipfile import ZipFile
 from pkginfo import Wheel, SDist
-import hashlib
 
-import utils
+from .utils import *
+from .DB_conector import get_package_dependecies
 
 
 class Package:
-    def __init__(self, path, dependencies):
-        self.dependencies = dependencies
+    def __init__(self, path):
         if path.startswith("http"):
             self.is_local = False
             self.path = utils.download_package(path)
         else:
             self.is_local = True
             self.path = os.path.abspath(path)
-        self.hash = "sha256:"+self.get_digest(self.path)
+        self.hash = "sha256:"+utils.get_digest(self.path)
+        self.dependencies = self.get_dependencies(self.path)
         if self.path.endswith(".whl"):
             wheel = Wheel(self.path)
             self.version = wheel.version
@@ -24,19 +24,6 @@ class Package:
             sdist = SDist(self.path)
             self.version = sdist.version
             self.name = sdist.name
-
-    def get_digest(self, file_path):
-        h = hashlib.sha256()
-
-        with open(file_path, 'rb') as file:
-            while True:
-                # Reading is buffered, so we can read smaller chunks.
-                chunk = file.read(h.block_size)
-                if not chunk:
-                    break
-                h.update(chunk)
-
-        return h.hexdigest()
 
     def toJSON(self):
         return {
@@ -49,13 +36,14 @@ class Package:
 
     @classmethod
     def get_all_dependencies_recursive(cls, dependencies, lst=[]):
-        dependencies = cls.get_dependencies(dependencies)
-        with open("requirements.inhouse.txt", "w") as requirements:
-            for sub_dep in dependencies:
-                lst.append(sub_dep["package_name"])
-                requirements.write(sub_dep["package_name"]+"\r\n")
+        #  get dependencies from db
+        dependencies = get_package_dependecies(dependencies)
+        with open("requirements.inhouse.txt", "a") as requirements:
+            requirements.write(dependencies['path']+"\r\n")
+            for sub_dep in dependencies['dependencies']:
+                lst.append(sub_dep)
                 cls.get_all_dependencies_recursive(
-                    sub_dep["package_name"], lst)
+                    sub_dep, lst)
         return lst
 
     @classmethod
@@ -65,7 +53,6 @@ class Package:
         if wheel_fname.startswith("http"):
             wheel_fname = utils.download_package(wheel_fname)
         try:
-            version = Wheel(wheel_fname).version
             archive = ZipFile(wheel_fname)
             for f in archive.namelist():
                 if f.endswith("dependency_links.txt"):
@@ -73,8 +60,7 @@ class Package:
                         if len(l) > 0:
                             print("found {dependent} dependecy of {package}"
                                   .format(package=wheel_fname, dependent=l))
-                            inhouse.append(
-                                {"package_name": l, "version": version})
+                            inhouse.append(l)
         except ValueError:
             print("ERROR: No such file or package")
             raise
