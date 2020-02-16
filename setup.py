@@ -13,7 +13,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='APM',  # Required
-    version='0.0.5',  # Required
+    version='0.0.20',  # Required
     description='Package manager',  # Optional
     long_description=long_description,  # Optional
     long_description_content_type='text/markdown',  # Optional (see note above)
@@ -27,13 +27,14 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
-    package_dir={'': 'src'},  # Optional
-    packages=find_packages(where='src'),  # Required
+    package_dir={'apm': 'apm'},
+    packages=['apm'],  # Required
     python_requires='>=3.5',
-    install_requires=['requests'],  # Optional
+    install_requires=['requests', 'pkginfo', "pymongo", "dnspython",
+                      "python-dotenv", "boto3"],  # Optional
     entry_points={  # Optional
         'console_scripts': [
-            'apm=apm:main',
+            'apm=apm.__main__:main',
         ],
     },
 )
